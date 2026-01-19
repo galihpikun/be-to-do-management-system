@@ -10,39 +10,42 @@ datasource db {
 model User {
   id         Int      @id @default(autoincrement())
   username   String
-  email      String
+  email      String   @unique
   password   String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   deleted_at DateTime?
   is_deleted Boolean  @default(false)
-  tasks      UserTask[]
+
+  tasks      Task[]
 }
 
 model Task {
   id         Int      @id @default(autoincrement())
+  user_id    Int
+
   title      String
   desc       String
-  priority   String
-  deadline   DateTime 
-  is_done    Boolean
-  created_by String
+  priority   Priority
+  status     Status
+  deadline   DateTime?
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   deleted_at DateTime?
   is_deleted Boolean  @default(false)
-  users      UserTask[]
+
+  user       User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
-model UserTask {
-  id      Int  @default(autoincrement())  // Bukan primary key
-  user_id Int
-  task_id Int
-
-  user   User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  task   Task @relation(fields: [task_id], references: [id], onDelete: Cascade)
-
-  @@id([user_id, task_id])  // Composite key
+enum Status {
+  todo
+  in_progress
+  done
 }
 
-
+enum Priority {
+  low
+  medium
+  high
+}
